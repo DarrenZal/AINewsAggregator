@@ -1,0 +1,191 @@
+# AI News Aggregator Configuration
+# Copy this file to config.yaml and update with your settings
+
+app:
+  name: "AI News Aggregator"
+  version: "1.0.0"
+  log_level: "INFO"
+
+# Data Sources Configuration
+sources:
+  rss_feeds:
+    - url: "https://openai.com/blog/rss.xml"
+      name: "OpenAI Blog"
+      weight: 0.9
+      category: "company"
+    - url: "https://www.anthropic.com/index/rss.xml"
+      name: "Anthropic Blog"
+      weight: 0.9
+      category: "company"
+    - url: "https://ai.googleblog.com/feeds/posts/default"
+      name: "Google AI Blog"
+      weight: 0.8
+      category: "company"
+    - url: "https://blogs.microsoft.com/ai/feed/"
+      name: "Microsoft AI Blog"
+      weight: 0.8
+      category: "company"
+    - url: "https://huggingface.co/blog/feed.xml"
+      name: "Hugging Face Blog"
+      weight: 0.7
+      category: "tools"
+  
+  apis:
+    hackernews:
+      enabled: true
+      keywords: ["AI", "GPT", "LLM", "machine learning", "neural network"]
+      min_score: 50
+      
+    reddit:
+      enabled: true
+      client_id: "${REDDIT_CLIENT_ID}"
+      client_secret: "${REDDIT_CLIENT_SECRET}"
+      user_agent: "AI News Aggregator 1.0"
+      subreddits: 
+        - "MachineLearning"
+        - "artificial"
+        - "singularity"
+        - "OpenAI"
+      min_score: 10
+      
+    newsapi:
+      enabled: true
+      api_key: "${NEWSAPI_KEY}"
+      categories: ["technology"]
+      keywords: ["artificial intelligence", "machine learning", "AI"]
+      
+    github:
+      enabled: true
+      token: "${GITHUB_TOKEN}"  # Optional, for higher rate limits
+      topics: ["ai", "machine-learning", "deep-learning", "llm"]
+
+# Email Configuration
+email:
+  provider: "sendgrid"  # Options: sendgrid, smtp
+  api_key: "${SENDGRID_API_KEY}"
+  from_address: "ainews@yourdomain.com"
+  from_name: "AI News Digest"
+  
+  # SMTP settings (if using SMTP provider)
+  smtp:
+    host: "smtp.gmail.com"
+    port: 587
+    username: "${SMTP_USERNAME}"
+    password: "${SMTP_PASSWORD}"
+    use_tls: true
+  
+  # Delivery schedules
+  schedules:
+    weekly:
+      enabled: true
+      day: "saturday"  # Options: monday-sunday
+      time: "09:00"
+      timezone: "America/New_York"
+      
+    daily:
+      enabled: false
+      time: "08:00"
+      timezone: "America/New_York"
+      
+    breaking:
+      enabled: true
+      importance_threshold: 8.5  # Scale of 1-10
+      cooldown_hours: 4  # Minimum hours between breaking news alerts
+
+# AI Configuration
+ai:
+  provider: "anthropic"  # Options: anthropic, openai
+  
+  anthropic:
+    api_key: "${ANTHROPIC_API_KEY}"
+    model: "claude-3-opus-20240229"
+    max_tokens: 4000
+    temperature: 0.7
+    
+  openai:
+    api_key: "${OPENAI_API_KEY}"
+    model: "gpt-4-turbo-preview"
+    max_tokens: 4000
+    temperature: 0.7
+
+# Database Configuration
+database:
+  type: "postgresql"  # Options: postgresql, sqlite
+  
+  postgresql:
+    host: "${DB_HOST}"
+    port: 5432
+    database: "ai_news_aggregator"
+    username: "${DB_USER}"
+    password: "${DB_PASSWORD}"
+    
+  sqlite:
+    path: "./data/news.db"
+
+# Discord Bot Configuration (Phase 2)
+discord:
+  enabled: false
+  bot_token: "${DISCORD_BOT_TOKEN}"
+  command_prefix: "/"
+  admin_users: []  # List of Discord user IDs with admin privileges
+  
+  # Bot personality
+  personality:
+    name: "AI News Bot"
+    avatar_url: ""
+    embed_color: "#5865F2"
+
+# Vector Store Configuration (Phase 2)
+vector_store:
+  provider: "chromadb"  # Options: chromadb, qdrant, pinecone
+  
+  chromadb:
+    persist_directory: "./data/chroma"
+    collection_name: "ai_news"
+    
+  embedding:
+    provider: "openai"  # Options: openai, sentence-transformers
+    model: "text-embedding-ada-002"
+    dimension: 1536
+
+# Processing Configuration
+processing:
+  # Deduplication settings
+  deduplication:
+    enabled: true
+    similarity_threshold: 0.85
+    
+  # Importance scoring weights
+  scoring:
+    source_weight: 0.3
+    engagement_weight: 0.2
+    keyword_weight: 0.2
+    recency_weight: 0.2
+    category_weight: 0.1
+    
+  # Category definitions
+  categories:
+    research:
+      keywords: ["paper", "research", "study", "arxiv"]
+      weight: 0.8
+    product:
+      keywords: ["launch", "release", "announce", "introducing"]
+      weight: 0.9
+    news:
+      keywords: ["report", "news", "update"]
+      weight: 0.7
+    opensource:
+      keywords: ["open source", "github", "repository"]
+      weight: 0.7
+    tutorial:
+      keywords: ["tutorial", "guide", "how to"]
+      weight: 0.6
+
+# User Preferences Defaults
+user_defaults:
+  categories: ["all"]  # Or specific: ["research", "product", "news"]
+  min_importance: 7.0
+  max_items_weekly: 50
+  max_items_daily: 10
+  include_summaries: true
+  include_links: true
